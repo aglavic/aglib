@@ -1,0 +1,5 @@
+numpy
+scipy
+pint
+h5py
+setuptools
