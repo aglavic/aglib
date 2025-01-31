@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 '''
 Often used functions.
 '''
@@ -14,4 +13,4 @@ def gauss(x, I=1., x0=0., sigma=1.):
 def lorentz(x, I=1., x0=0., gamma=1.):
     x=array(x, copy=False)
     return I*(1./(1.+((x-x0)/gamma)**2))
-    
+

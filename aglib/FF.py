@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 '''
 General purpose form factors with and without directional average.
 All FF with directional average begin with capital letter.
@@ -8,7 +7,8 @@ Most function definitions are taken from:
                   scattering analysis of supported islands,
                   Journal of Applied Crystallography (2002), 35, 406-421
 '''
-from numpy import pi, sqrt, exp, sin, cos, sinc, ones_like, zeros
+
+import numpy as np
 from scipy.special import j1
 
 def Tfactor(Qx, Qy, Qz, x, y, z):
@@ -17,7 +17,7 @@ def Tfactor(Qx, Qy, Qz, x, y, z):
     
     :param: x, y, z translation in real space coordinates
     '''
-    return exp(-1j*(Qx*x+Qy*y+Qz*z))
+    return np.exp(-1j*(Qx*x+Qy*y+Qz*z))
 
 #################### form factors with directional dependence ######################
 def sphere(Qx, Qy, Qz, R):
@@ -26,7 +26,7 @@ def sphere(Qx, Qy, Qz, R):
     
     :param: R radius
     '''
-    Q=sqrt(Qx**2+Qy**2+Qz**2)
+    Q=np.sqrt(Qx**2+Qy**2+Qz**2)
     return Sphere(Q, R)
 
 def cuboid(Qx, Qy, Qz, a, b, c):
@@ -35,9 +35,9 @@ def cuboid(Qx, Qy, Qz, a, b, c):
     
     :param: a, b, c the edge lengths in x, y and z direction
     '''
-    FFx=a*sinc(Qx*a/2./pi)
-    FFy=b*sinc(Qy*b/2./pi)
-    FFz=c*sinc(Qz*c/2./pi)
+    FFx=a*np.sinc(Qx*a/2./np.pi)
+    FFy=b*np.sinc(Qy*b/2./np.pi)
+    FFz=c*np.sinc(Qz*c/2./np.pi)
     return FFx*FFy*FFz
 
 def cube(Qx, Qy, Qz, a):
@@ -56,16 +56,16 @@ def cylinder(Qx, Qy, Qz, R, h):
     :param: h height
     '''
     # xy part
-    Qr=sqrt(Qx**2+Qy**2)
+    Qr=np.sqrt(Qx**2+Qy**2)
     QR=(Qr*R)
-    FFr=ones_like(QR)
-    FFrscale=2.*pi*R**2
+    FFr=np.ones_like(QR)
+    FFrscale=2.*np.pi*R**2
     # make sure we don't divide by zero
     QRpos=QR!=0.
     QR=QR[QRpos]
     FFr[QRpos]=j1(QR)/QR
     # z part
-    FFz=h*sinc(Qz*h/2./pi)
+    FFz=h*np.sinc(Qz*h/2./np.pi)
     return FFrscale*FFr*FFz
 
 def prism(Qx, Qy, Qz, a, h):
@@ -76,16 +76,16 @@ def prism(Qx, Qy, Qz, a, h):
     :param: h height
     '''
     # xy part
-    FFxyscale=2j*(sqrt(3.))
-    Q1=sqrt(3)*Qy-Qx
-    Q2=sqrt(3)*Qy+Qx
-    FFxy=FFxyscale*(Q1*sin(Q2*a)*exp(1j*Qx*a)-
-                    Q2*sin(Q1*a)*exp(-1j*Qx*a))
+    FFxyscale=2j*(np.sqrt(3.))
+    Q1=np.sqrt(3)*Qy-Qx
+    Q2=np.sqrt(3)*Qy+Qx
+    FFxy=FFxyscale*(Q1*np.sin(Q2*a)*np.exp(1j*Qx*a)-
+                    Q2*np.sin(Q1*a)*np.exp(-1j*Qx*a))
     FFdec=(Qx*(Qx**2-3.*Qy**2))
     xypos=(FFdec!=0.)
     FFxy[xypos]/=FFdec[xypos]
     # z part
-    FFz=h*sinc(Qz*h/2./pi)
+    FFz=h*np.sinc(Qz*h/2./np.pi)
     return FFxy*FFz
 
 def prism6(Qx, Qy, Qz, a, h):
@@ -96,7 +96,7 @@ def prism6(Qx, Qy, Qz, a, h):
     :param: a edge length
     :param: h height
     '''
-    s3h=sqrt(3.)/2.
+    s3h=np.sqrt(3.)/2.
     FF=prism(Qx, Qy, Qz, a, h)+prism(-Qx,-Qy, Qz, a, h)
     FF+=prism(0.5*Qx-s3h*Qy, s3h*Qx+0.5*Qy, Qz, a, h)
     FF+=prism(-0.5*Qx+s3h*Qy,-s3h*Qx-0.5*Qy, Qz, a, h)
@@ -127,11 +127,11 @@ def truncube(Qx, Qy, Qz, a, tau):
         # For the truncation calculate the scattering from all 8 edges is subtracted,
         # this is done by moving and rotating a quarter of an octahedron
         # as given in By R. W. HENDRICKS, J. SCHELTEN and W. SCHMA, Philosophical Magazine (1974)
-        F8=zeros((Qx+Qy+Qz).shape, dtype=complex)
+        F8=np.zeros((Qx+Qy+Qz).shape, dtype=complex)
         for s1 in [-1, 1]:
             for s2 in [-1, 1]:
                 for s3 in [-1, 1]:
-                    F8+=F0(s1*Qx, s2*Qy, s3*Qz, b)*exp(-1j*a2*(s1*Qx+s2*Qy+s3*Qz))
+                    F8+=F0(s1*Qx, s2*Qy, s3*Qz, b)*np.exp(-1j*a2*(s1*Qx+s2*Qy+s3*Qz))
         return FC-F8
     else:
         return FC
@@ -141,9 +141,9 @@ def F0(Qx, Qy, Qz, b):
     Help function for calculation of truncated cubes.
     Defines one quarter of an octahedron with edge length b.
     '''
-    A=exp(1j*b*Qx)/(Qx*(Qx-Qy)*(Qx-Qz))
-    B=exp(1j*b*Qy)/(Qy*(Qy-Qx)*(Qy-Qz))
-    C=exp(1j*b*Qz)/(Qz*(Qz-Qx)*(Qz-Qy))
+    A=np.exp(1j*b*Qx)/(Qx*(Qx-Qy)*(Qx-Qz))
+    B=np.exp(1j*b*Qy)/(Qy*(Qy-Qx)*(Qy-Qz))
+    C=np.exp(1j*b*Qz)/(Qz*(Qz-Qx)*(Qz-Qy))
     D=1.0/(Qx*Qy*Qz)
     return 1j*(A+B+C-D)
 
@@ -161,11 +161,11 @@ def facetsphere(Qx, Qy, Qz, R, f, N=10):
     Qsets=[(Qx, Qy, Qz), (Qz, Qx, Qy), (Qy, Qz, Qx)]
     for i in range(N):
         h=R-dh*(i+0.5)
-        Rc=sqrt(R**2-h**2)
+        Rc=np.sqrt(R**2-h**2)
         for Q1, Q2, Q3 in Qsets:
             FFc=cylinder(Q1, Q2, Q3, Rc, dh)
             # translation factor for two copies of the cylinder at top and bottom
-            Tc=2.*cos(Q3*h) # exp(1j*Q3*h)+exp(-1j*Q3*h)
+            Tc=2.*np.cos(Q3*h) # exp(1j*Q3*h)+exp(-1j*Q3*h)
             FF-=Tc*FFc
     return FF
 
@@ -177,11 +177,11 @@ def Sphere(Q, R):
     :param: R radius 
     '''
     QR=Q*R
-    FF=ones_like(QR)
-    FFscale=4./3.*pi*R**3
+    FF=np.ones_like(QR)
+    FFscale=4./3.*np.pi*R**3
     # make sure we don't divide by zero
     QRpos=QR!=0
     QR=QR[QRpos]
-    FF[QRpos]=(sin(QR)-QR*cos(QR))/(QR)**3
+    FF[QRpos]=(np.sin(QR)-QR*np.cos(QR))/(QR)**3
     return FFscale*FF
 

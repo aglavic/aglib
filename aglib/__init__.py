@@ -1,10 +1,9 @@
 '''
 Module for stuff often used in scattering.
+Can be used as 'from aglib import *' in
+interactive sessions.
 '''
 
-from . import functions
-from .functions import *
-from .peakfinder import PeakFinder
-from .mpfit import mpfit
+__version__='0.1.0'
 
-__all__=['FF', 'res', 'mpfit', 'PeakFinder']+functions.__all__
+from .functions import *
