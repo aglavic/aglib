@@ -7,3 +7,4 @@ interactive sessions.
 __version__='0.2.0'
 
 from .functions import *
+from . import mcstas_reader as mr
