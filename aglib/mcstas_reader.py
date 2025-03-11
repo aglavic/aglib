@@ -42,7 +42,7 @@ class HeaderFile:
     else:
       data=path.read().decode('UTF-8')
     data_lines=data.splitlines()
-    if not data.startswith('McStas simulation description file'):
+    if not data.lower().startswith('mcstas simulation description file'):
       raise IOError('Not a valid McStas description file.')
     self._data['start_time']=data_lines[1].split(':', 1)[1].strip()
     self._data['program_name']=data_lines[2].split(':', 1)[1].strip()
