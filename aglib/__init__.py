@@ -4,7 +4,7 @@ Can be used as 'from aglib import *' in
 interactive sessions.
 '''
 
-__version__='0.2.0'
+__version__='0.2.1'
 
 from .functions import *
 from . import mcstas_reader as mr

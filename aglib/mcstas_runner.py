@@ -27,22 +27,28 @@ def set_mcstas_27():
     ipython.magic('set_env MCSTAS_FORMAT=')
     ipython.magic('set_env MCSTAS_CFLAGS=" -std=c99 -g -O2 -lm"')
 
-def set_mcstas_34():
+def set_mcstas_3(subversion="5.24"):
     """
-    Set McStas environment variables for windows default location of version 2.7
+    Set McStas environment variables for windows default location of version 3.x
     For use in jupyter notebooks.
     """
     ipython = get_ipython()
     # Setting environment for McStas execution, see mcstas/bin/mccodeenv.bat
     PATH = os.environ['PATH']
-    ipython.magic('set_env PATH=C:\\mcstas-3.4\\bin;C:\\mcstas-3.4\\miniconda3;C:\\mcstas-3.4\\miniconda3\\Scripts\\;C:\\mcstas-3.4\\miniconda3\\Library\\bin;C:\\mcstas-3.4\\miniconda3\\Library\\mingw-w64\\bin;c:\\strawberry\\perl\\bin;c:\\Program Files\\Microsoft MPI\\Bin;%s'%PATH)
+    ipython.magic(f'set_env PATH=C:\\mcstas-3.{subversion}\\bin;C:\\mcstas-3.{subversion}\\miniconda3;C:\\mcstas-3.{subversion}\\miniconda3\\Scripts\\;C:\\mcstas-3.{subversion}\\miniconda3\\Library\\bin;C:\\mcstas-3.{subversion}\\miniconda3\\Library\\mingw-w64\\bin;c:\\strawberry\\perl\\bin;c:\\Program Files\\Microsoft MPI\\Bin;%s'%PATH)
     # McStas related:
-    ipython.magic('set_env MCSTAS=C:\\mcstas-3.4\\lib')
-    ipython.magic('set_env MCSTAS_TOOLS=C:\\mcstas-3.4\\lib\\tools\\Perl\\')
+    ipython.magic(f'set_env MCSTAS=C:\\mcstas-3.{subversion}\\lib')
+    ipython.magic(f'set_env MCSTAS_TOOLS=C:\\mcstas-3.{subversion}\\lib\\tools\\Perl\\')
     ipython.magic('set_env MCSTAS_CC=gcc')
     ipython.magic('set_env MCSTAS_FORMAT=')
     ipython.magic('set_env MCSTAS_CFLAGS=" -std=c99 -g -O2 -lm"')
 
+def set_mcstas_34():
+    """
+    Set McStas environment variables for windows default location of version 2.7
+    For use in jupyter notebooks.
+    """
+    return set_mcstas_3(subversion="4")
 
 
 def compile_model(model_name, call_path='.'):
