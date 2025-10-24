@@ -68,7 +68,7 @@ def compile_model(model_name, call_path='.', nexus=None):
 
 NUM_POCS = 14
 
-def run_model(model_name, output_name, options="", n="1e7", call_path='.', gravity=False):
+def run_model(model_name, output_name, options="", n="1e7", call_path='.', gravity=False, nexus=False):
     """
     Run a McStas model to given output path and zip the resulting data.
     """
@@ -84,6 +84,8 @@ def run_model(model_name, output_name, options="", n="1e7", call_path='.', gravi
     add_options = ""
     if gravity:
         add_options+=" --gravitation"
+    if nexus:
+        add_options+=" --format=NeXuS"
     res=run(f'mpiexec -n {NUM_POCS} {model_name}.exe -n {n}{add_options} -d {output_name_rel} {options}', 
             shell=True, capture_output=True, cwd=call_path)
     os.chdir(ROOT)
@@ -94,15 +96,16 @@ def run_model(model_name, output_name, options="", n="1e7", call_path='.', gravi
         "<br /><div style='color: red;'>"+res.stderr.decode('utf-8')+"</div>"+
         "</div>"
     ))
-        
-    try:
-        os.remove(output_name_full+'.zip')
-    except FileNotFoundError:  
-        pass
-    shutil.make_archive(output_name_full, 'zip', base_dir=output_name, root_dir='results')
-    try:
-        shutil.rmtree(output_name_full)
-    except (FileNotFoundError,PermissionError):  
-        pass
-    
-    os.chdir(ROOT)
+
+    if not nexus:
+        try:
+            os.remove(output_name_full+'.zip')
+        except FileNotFoundError:
+            pass
+        shutil.make_archive(output_name_full, 'zip', base_dir=output_name, root_dir='results')
+        try:
+            shutil.rmtree(output_name_full)
+        except (FileNotFoundError,PermissionError):
+            pass
+
+        os.chdir(ROOT)
