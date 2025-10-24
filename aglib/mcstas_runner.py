@@ -51,14 +51,17 @@ def set_mcstas_34():
     return set_mcstas_3(subversion="4")
 
 
-def compile_model(model_name, call_path='.'):
+def compile_model(model_name, call_path='.', nexus=None):
     """
     Compile a McStas model.
     """
     res=run(f'mcstas -o {model_name}.c {model_name}.instr', shell=True, capture_output=True, 
             cwd=call_path)
     print(res.stdout.decode('utf-8')+"\n\x1b[31m"+res.stderr.decode('utf-8')+"\x1b[0m")
-    res=run(f'mpicc -std=c99 -O2 -o {model_name}.exe {model_name}.c -lm −DUSE_MPI', shell=True, capture_output=True,
+    libargs = '-lm −DUSE_MPI'
+    if nexus:
+        libargs +=f' -DUSE_NEXUS -lNeXus -L "{nexus}\\bin" -I "{nexus}\\include"'
+    res=run(f'mpicc -std=c99 -O2 -o {model_name}.exe {model_name}.c {libargs}', shell=True, capture_output=True,
             cwd=call_path)
     print(res.stdout.decode('utf-8')+"\n\x1b[31m"+res.stderr.decode('utf-8')+"\x1b[0m")
     os.chdir(ROOT)
